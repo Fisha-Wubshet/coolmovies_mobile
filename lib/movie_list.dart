@@ -5,6 +5,7 @@ import '../widgets/appBar_widget.dart';
 import '../widgets/single_movie_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'movie_detail.dart';
 import 'provider/provider.dart';
 
 class MovieList extends StatefulWidget {
@@ -58,7 +59,10 @@ late List<Movie> movies;
                                       return  Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: InkWell(
-                                         onTap: () {},
+                                         onTap: ()=> Navigator.push(
+                                                      context,
+                                               MaterialPageRoute(builder: (context) => MovieDetails(movieProvider.movies[index], index)),
+                                              ),
                                             child: SingleMovieWidget(
                                             movie: movieProvider.movies[index],
                                           ),
