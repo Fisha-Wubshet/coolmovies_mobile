@@ -19,6 +19,9 @@ class MovieDetails extends StatefulWidget {
 }
 
 class _MovieDetailsState extends State<MovieDetails> {
+  final TextEditingController titleController =  TextEditingController();
+  final TextEditingController bodyController =  TextEditingController();
+  int  _reviewStars = 0;
   late List movieReviews;
   late Movie movie;
   late List<Movie> allMovies;
@@ -44,18 +47,35 @@ class _MovieDetailsState extends State<MovieDetails> {
       ;
     });
   }
+// add review 
+  addReview() async {
+    setState(() {
+      _isLoading=true;
+    });
+  String userReviewerId = await MovieService.fetchCurrentUser(); 
+  allMovies = await MovieService.addReview(movie.id,userReviewerId,titleController.text,_reviewStars,bodyController.text); 
+   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Review successfully "),backgroundColor: Colors.green,));
+    setState(() {
+       Provider.of<MovieListProvider>(context,listen: false).updateMovies(allMovies);
+       movieReviews=allMovies[widget.index].movieReviews;
+      _isLoading=false
+      ;
+    });
+  }
 
-  
+  // check onine status
 Future<bool> checkOnline() async {
   final result = await Connectivity().checkConnectivity();
   return result == ConnectivityResult.mobile || result == ConnectivityResult.wifi;
 }
 
+// remove review 
   removeReview(reviewId) async {
     setState(() {
       _isLoading=true;
     });
     bool isOnline=false;
+    // check online status
     isOnline = await checkOnline();
     if(isOnline){
     allMovies = await MovieService.deleteReview(reviewId);}
@@ -195,6 +215,10 @@ Future<bool> checkOnline() async {
                     child: ElevatedButton(
                       style: raisedButtonStyle,
                       onPressed: () {
+                         titleController.text='';
+                         bodyController.text='';
+                         _reviewStars = 0;
+                          addReviewWidget();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -212,6 +236,7 @@ Future<bool> checkOnline() async {
                 ),
     );
   }
+  
   //widget to list a single review
   reviewList(review){
     return Padding(
@@ -229,6 +254,7 @@ Future<bool> checkOnline() async {
                 fontSize: 15,
                 fontWeight: FontWeight.bold
                  ),),
+                  // only the review creater can delete
                  if(userReviewerId==review.userCreatorId)
                  InkWell(
                   onTap: (){
@@ -244,11 +270,10 @@ Future<bool> checkOnline() async {
                    Icon( Icons.star,
                    color: review.rating >= i ? Colors.amber : Colors.grey,size: 15,
                 ),
-                                                            ],
-                                                          ),
-         
-          
-                            Text(review.userCreator ,style: 
+                  ],
+                    ),
+                    
+                    Text(review.userCreator ,style: 
                             const TextStyle(
                            fontSize: 16,
                            ),),
@@ -267,4 +292,128 @@ Future<bool> checkOnline() async {
     );
   }
 
+  //widget to add a review
+addReviewWidget() {
+    return showModalBottomSheet(
+    isScrollControlled: true,
+    context: context,
+    builder: (context) { return StatefulBuilder(
+                builder: (context, setState) {
+                  return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Padding(
+               padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                  decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                
+                    children: [
+                const Icon(Icons.star_border, size: 35,),
+                const SizedBox(height: 5,),
+                      const  Text('RATE THIS', style: TextStyle(
+                                color:  primaryColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold
+                
+                            ),),
+                            const  SizedBox(height: 5,),
+                            Text(movie.title, style:  const TextStyle(
+                                color:  Colors.black,
+                                fontSize: 20,
+                                
+                
+                            ),
+                            textAlign: TextAlign.center,
+                            ),
+                    
+                            // ReviewList(reviews, deleteReview), // Pass deleteReview function
+                            Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    // key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          decoration: const InputDecoration(labelText: "Review Title"),
+                          controller: titleController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Please enter a title for your review";
+                            }
+                            return null;
+                          },
+                      
+                        ),
+                        TextFormField(
+                          decoration: const InputDecoration(labelText: "Review Body"),
+                          controller: bodyController,
+                          
+                       
+                          minLines: 3,
+                          maxLines: 5,
+                        ),
+                        Row(
+                          children: [
+                            for (int i = 1; i <= 5; i++)
+                              IconButton(
+                                icon: Icon(
+                                  Icons.star,
+                                  color: _reviewStars >= i ? Colors.amber : Colors.grey,
+                                ),
+                                onPressed: () => setState(() => _reviewStars = i),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10,),
+                        SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 56.0,
+                      child: ElevatedButton(
+                        style: raisedButtonStyle,
+                        onPressed: () {
+                          if(titleController.text!='')
+                            { Navigator.of(context).pop();
+                             addReview();}
+                             else{
+                             Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Title field is required "),backgroundColor: Colors.red,));
+                             }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                             Icon(Icons.star),
+                            SizedBox(width: 10,),
+                            Text("Submit Review",style: TextStyle(
+                              fontSize: 16,
+                              fontWeight:  FontWeight.bold,
+                            ),),
+                          ],
+                        ),
+                      ),
+                    
+                  ),
+                      ],
+                    ),
+                  ),
+                            ),
+                          
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );}
+            ); });
+  }
+  
 }
