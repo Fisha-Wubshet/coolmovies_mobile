@@ -1,4 +1,6 @@
-import 'package:coolmovies_mobile/movie_list.dart';
+import '../movie_list.dart';
+import '../provider/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -10,14 +12,16 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-      debugShowCheckedModeBanner: false,
+    return  ChangeNotifierProvider(
+      create: (context) => MovieListProvider(),
+      child:MaterialApp(
+        debugShowCheckedModeBanner: false,
       title: 'Movie Review App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: const MovieList(),
-    );
+    ));
   }
 }
 
