@@ -12,25 +12,26 @@ import 'service/service.dart';
 class MovieDetails extends StatefulWidget {
   final Movie  movie;
   final int index;
+
   const MovieDetails(this.movie, this.index, {super.key});
   @override
   State<MovieDetails> createState() => _MovieDetailsState();
 }
 
 class _MovieDetailsState extends State<MovieDetails> {
-
   late List movieReviews;
   late Movie movie;
   late List<Movie> allMovies;
   late String userReviewerId;
   bool _isLoading=false;
 
-@override
+  @override
   void initState() {
     fetchDetails();
     super.initState();
   }
-  fetchDetails() async {
+
+ fetchDetails() async {
     setState(() {
       _isLoading=true;
     });
@@ -42,6 +43,29 @@ class _MovieDetailsState extends State<MovieDetails> {
       _isLoading=false
       ;
     });
+  }
+
+  
+Future<bool> checkOnline() async {
+  final result = await Connectivity().checkConnectivity();
+  return result == ConnectivityResult.mobile || result == ConnectivityResult.wifi;
+}
+
+  removeReview(reviewId) async {
+    setState(() {
+      _isLoading=true;
+    });
+    bool isOnline=false;
+    isOnline = await checkOnline();
+    if(isOnline){
+    allMovies = await MovieService.deleteReview(reviewId);}
+    
+    setState(() {
+     Provider.of<MovieListProvider>(context,listen: false).updateMovies(allMovies);
+      movieReviews=allMovies[widget.index].movieReviews;
+      _isLoading=false;
+    });
+ 
   }
   @override
   Widget build(BuildContext context) {
@@ -144,8 +168,20 @@ class _MovieDetailsState extends State<MovieDetails> {
                     ],
                   ),
                     ),
-               
-                  
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: ListView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        shrinkWrap: true,
+                          itemCount:movieReviews.length,
+                          itemBuilder: (context, index) {
+                          
+                            return 
+                              reviewList(movieReviews[index]);
+                          },
+                        ),
+                    ),
+                    const SizedBox(height: 100,),
                  
               ],
                 ),
@@ -159,7 +195,6 @@ class _MovieDetailsState extends State<MovieDetails> {
                     child: ElevatedButton(
                       style: raisedButtonStyle,
                       onPressed: () {
-                        
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -177,7 +212,59 @@ class _MovieDetailsState extends State<MovieDetails> {
                 ),
     );
   }
-
   //widget to list a single review
+  reviewList(review){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              
+              Text(review.title,style: 
+                const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold
+                 ),),
+                 if(userReviewerId==review.userCreatorId)
+                 InkWell(
+                  onTap: (){
+                    removeReview(review.id);
+                  },
+                  child: const Icon(Icons.delete))
+            ],
+          ),
+          if(review.rating!=null)
+          Row(
+              children: [
+                   for (int i = 1; i <= 5; i++)
+                   Icon( Icons.star,
+                   color: review.rating >= i ? Colors.amber : Colors.grey,size: 15,
+                ),
+                                                            ],
+                                                          ),
+         
+          
+                            Text(review.userCreator ,style: 
+                            const TextStyle(
+                           fontSize: 16,
+                           ),),
+                           if(review.body!=null)
+                           Text(review.body,style: 
+                           const TextStyle(
+                          fontSize: 14,
+                      color: Colors.grey
+                        ),),       
+           const Padding(
+             padding: EdgeInsets.all(8.0),
+             child: Divider(color: Colors.grey,),
+           ),
+        ],
+      ),
+    );
+  }
 
 }
