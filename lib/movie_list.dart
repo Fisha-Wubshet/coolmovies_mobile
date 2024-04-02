@@ -1,16 +1,58 @@
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import '../Utils/brand_color.dart';
+import '../model/model.dart';
+import '../service/service.dart';
+import '../widgets/appBar_widget.dart';
+import '../widgets/single_movie_widget.dart';
+import 'package:flutter/material.dart';
+import 'provider/provider.dart';
 
 class MovieList extends StatefulWidget {
   const MovieList({super.key});
-
   @override
   State<MovieList> createState() => _MovieListState();
 }
 
 class _MovieListState extends State<MovieList> {
+bool _isLoading=false;
+late List<Movie> movies; 
+  
+  
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: brandBackgroundColor,
+      appBar: topAppBar('Movie Review App'),
+      body: _isLoading?  const Center(child: CircularProgressIndicator()):
+      SingleChildScrollView(
+        child:  Column(
+            children: [
+  const SizedBox(height: 10,),
+              Padding(
+                                padding: const EdgeInsets.only(left: 8, right: 8),
+                                child: GridView.builder(
+                                    physics: const ClampingScrollPhysics(),
+                                    primary: false,
+                                    shrinkWrap: true,
+                                    itemCount: movies.length,
+                                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                        mainAxisExtent: 280, maxCrossAxisExtent: 270),
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return  Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: InkWell(
+                                         onTap: () {},
+                                            child: SingleMovieWidget(
+                                            movie: movies[index],
+                                          ),
+                                          ),
+                                        
+                                      );
+                                    }),
+                              )
+            ],
+          ),
+        
+      ),
+    );
   }
 }
