@@ -1,3 +1,4 @@
+// query of fetch Movies Query
 String fetchMoviesQuery=r"""
 query MyQuery {
   allMovies {
@@ -22,6 +23,8 @@ query MyQuery {
   }
 }
 """;
+
+// query for add Review
 String addReviewQuery(movieId,userReviewerId,title,rating,body){
   return """
 mutation MyMutation {
@@ -53,6 +56,8 @@ mutation MyMutation {
   }
 }
 """;}
+
+// query of fetch current User
 String fetchCurrentUserQuery=r"""
     query MyQuery {
   currentUser {
@@ -60,6 +65,8 @@ String fetchCurrentUserQuery=r"""
   }
 }
 """;
+
+// query for delete review
 String deleteReviewQuery(reviewId){
   return """
  mutation MyMutation {
