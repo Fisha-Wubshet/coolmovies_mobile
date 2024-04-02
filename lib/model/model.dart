@@ -12,7 +12,27 @@ class Movie {
         imgUrl:json["imgUrl"],
         releaseDate: json["releaseDate"],
         title: json["title"],
-        movieReviews:json['movieReviewsByMovieId']['nodes'],
+        movieReviews:json['movieReviewsByMovieId']?['nodes']?.map((movie) => Review.fromJson(movie)).toList()?? []
+        );
+  }
+}
+class Review {
+  final String id;
+  final int? rating;
+  final String title;
+  final String ? body;
+  final String userCreatorId;
+  final String userCreator;
+
+ Review({required this.id, required this.rating, required this.title, required this.body,  required this.userCreatorId, required this.userCreator,});
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+        id: json["id"],
+        rating: json['rating'],
+        title:json['title'],
+        body:json['body'],
+        userCreatorId:json["userByUserReviewerId"]['id'],
+        userCreator:json["userByUserReviewerId"]['name'],
         );
   }
 }
