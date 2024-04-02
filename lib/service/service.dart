@@ -36,4 +36,26 @@ class MovieService {
     return data.map((review) => Movie.fromJson(review)).toList();
   }
 
+// fetch current user service
+static Future<String> fetchCurrentUser() async {
+    final query = gql(fetchCurrentUserQuery);
+    final result = await client.query(QueryOptions(document: query));
+    if (result.hasException) {
+      throw Exception(result.exception);
+    }
+    final data = result.data!['currentUser'];
+    return data['id'];
+  }
+
+// delete Review service
+static Future<List<Movie>> deleteReview(reviewId) async {
+    final query = gql(deleteReviewQuery(reviewId));
+
+    final result = await client.query(QueryOptions(document: query));
+    if (result.hasException) {
+      throw Exception(result.exception);
+    }
+    final data = result.data!['deleteMovieReviewById']['query']['allMovies']['nodes']  as List ;
+    return data.map((review) => Movie.fromJson(review)).toList();
+  }
 }
