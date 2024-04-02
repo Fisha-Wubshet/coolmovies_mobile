@@ -13,7 +13,7 @@ AppBar topAppBar(title){
                 title,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Inter',
                 ),
@@ -22,7 +22,7 @@ AppBar topAppBar(title){
         ),
         actions: const <Widget>[Padding(
           padding: EdgeInsets.all(8.0),
-          child: Icon(Icons.search),
+          child: Icon(Icons.person),
         )],
         centerTitle: true,
         flexibleSpace: Container(

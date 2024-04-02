@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'movie_detail.dart';
 import 'provider/provider.dart';
+import 'widgets/search_widget.dart';
 
 class MovieList extends StatefulWidget {
   const MovieList({super.key});
@@ -17,13 +18,14 @@ class MovieList extends StatefulWidget {
 class _MovieListState extends State<MovieList> {
 bool _isLoading=false;
 late List<Movie> movies; 
+
   @override
   void initState() {
-    // fetch movies
     fechMovies();
     super.initState();
   }
 
+    // fetch movies
   fechMovies() async {
     setState(() {
       _isLoading=true;
@@ -44,7 +46,8 @@ late List<Movie> movies;
       SingleChildScrollView(
         child:  Column(
             children: [
-           const SizedBox(height: 10,),
+              searchWidget(),
+              const SizedBox(height: 10,),
               Padding(
                                 padding: const EdgeInsets.only(left: 8, right: 8),
                                 child: Consumer<MovieListProvider>(
