@@ -4,6 +4,7 @@ import '../service/service.dart';
 import '../widgets/appBar_widget.dart';
 import '../widgets/single_movie_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'provider/provider.dart';
 
 class MovieList extends StatefulWidget {
@@ -15,7 +16,23 @@ class MovieList extends StatefulWidget {
 class _MovieListState extends State<MovieList> {
 bool _isLoading=false;
 late List<Movie> movies; 
-  
+  @override
+  void initState() {
+    // fetch movies
+    fechMovies();
+    super.initState();
+  }
+
+  fechMovies() async {
+    setState(() {
+      _isLoading=true;
+    }); 
+    movies = await MovieService.fetchMovies();
+    Provider.of<MovieListProvider>(context,listen: false).updateMovies(movies);
+    setState(() {
+      _isLoading=false;
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -26,14 +43,15 @@ late List<Movie> movies;
       SingleChildScrollView(
         child:  Column(
             children: [
-  const SizedBox(height: 10,),
+           const SizedBox(height: 10,),
               Padding(
                                 padding: const EdgeInsets.only(left: 8, right: 8),
-                                child: GridView.builder(
+                                child: Consumer<MovieListProvider>(
+                   builder: (context, movieProvider, child) =>GridView.builder(
                                     physics: const ClampingScrollPhysics(),
                                     primary: false,
                                     shrinkWrap: true,
-                                    itemCount: movies.length,
+                                    itemCount: movieProvider.movies.length,
                                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                                         mainAxisExtent: 280, maxCrossAxisExtent: 270),
                                     itemBuilder: (BuildContext context, int index) {
@@ -42,16 +60,15 @@ late List<Movie> movies;
                                           child: InkWell(
                                          onTap: () {},
                                             child: SingleMovieWidget(
-                                            movie: movies[index],
+                                            movie: movieProvider.movies[index],
                                           ),
                                           ),
                                         
                                       );
                                     }),
-                              )
+                              ),)
             ],
           ),
-        
       ),
     );
   }
