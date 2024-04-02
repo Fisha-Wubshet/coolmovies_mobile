@@ -53,3 +53,40 @@ mutation MyMutation {
   }
 }
 """;}
+String fetchCurrentUserQuery=r"""
+    query MyQuery {
+  currentUser {
+    id
+  }
+}
+""";
+String deleteReviewQuery(reviewId){
+  return """
+ mutation MyMutation {
+  deleteMovieReviewById(input: {id: "$reviewId"}) {
+     query {
+      allMovies {
+        nodes {
+          id
+          imgUrl
+          releaseDate
+          title
+          movieReviewsByMovieId {
+            nodes {
+              id
+              rating
+              title
+              body
+              userByUserReviewerId {
+               name
+               id
+             }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+""";
+}
